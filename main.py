@@ -1,10 +1,15 @@
 import os
 import sys
 import json
+import yaml
 
-def main(data_path):
+def main(data_path, file_type):
+    
     with(open(data_path, "r")) as f:
-        data = json.load(f)
+        if(file_type == "json"):
+            data = json.load(f)
+        else:
+            data = yaml.load(f, yaml.SafeLoader)
     
     for machine in data:
         dirpath = machine["name"]
@@ -56,8 +61,18 @@ def main(data_path):
 
 if __name__ == "__main__":
     if (len(sys.argv) < 2):
-        print("Usage {} data".format(sys.argv[0]))
-        sys.exit();
+        print("Usage {} data_file".format(sys.argv[0]))
+        sys.exit()
 
-    main(sys.argv[1])
+    available_extensions = ["json", "yaml", "yml"]
+
+    # Gets the extension and remove the dot (eg. .json -> json)
+    extension = os.path.splitext(sys.argv[1])[1]
+    extension = extension[1:]
+    
+    if extension not in available_extensions:
+        print("Error: data file format, must be <{}>".format(available_extensions))
+        sys.exit()
+
+    main(sys.argv[1], extension)
 
